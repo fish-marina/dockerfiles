@@ -41,7 +41,7 @@ jobs:
 
   build-amd64:
     needs: detect-changes
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     if: ${{ needs.detect-changes.outputs.matrix != '{}' }}
     strategy:
       matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
@@ -67,7 +67,8 @@ jobs:
           context: ${{ matrix.name }}/${{ matrix.version }}
           file: ${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           platforms: linux/amd64
-          outputs: push-by-digest=true,type=image
+          tags: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}
+          outputs: push-by-digest=true,type=image,push=true
 
       - uses: beacon-biosignals/matrix-output@v1
         id: matrix-output
@@ -104,7 +105,8 @@ jobs:
           context: ${{ matrix.name }}/${{ matrix.version }}
           file: ${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           platforms: linux/arm64
-          outputs: push-by-digest=true,type=image
+          tags: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}
+          outputs: push-by-digest=true,type=image,push=true
 
       - uses: beacon-biosignals/matrix-output@v1
         id: matrix-output
