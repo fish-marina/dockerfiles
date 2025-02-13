@@ -31,24 +31,21 @@ jobs:
             name=$(cut -d'/' -f1 <<< "$dir_path")
             version=$(cut -d'/' -f2 <<< "$dir_path")
 
-            image_json=$(printf '{"name": "%s", "version": "%s"}' "$name" "$version")
-            IMAGES+=("$image_json")
+            image_json_amd64=$(printf '{"name": "%s", "version": "%s", "os": "%s"}' "$name" "$version" ubuntu-24.04)
+            image_json_arm64=$(printf '{"name": "%s", "version": "%s", "os": "%s"}' "$name" "$version" ubuntu-24.04-arm)
+            IMAGES+=("$image_json_amd64", "$image_json_arm64")
           done
 
           IMAGE_LIST=$(IFS=,; echo "${IMAGES[*]}")
 
-          printf 'matrix=[%s]\n' "$IMAGE_LIST" >> "$GITHUB_OUTPUT"
+          printf 'matrix={"include":[%s]}\n' "$IMAGE_LIST" >> "$GITHUB_OUTPUT"
 
   build:
     needs: detect-changes
     runs-on: ${{ matrix.os }}
     if: ${{ needs.detect-changes.outputs.matrix != '[]' }}
     strategy:
-      matrix:
-        os:
-        - ubuntu-24.04
-        - ubuntu-24.04-arm
-        include: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
     outputs:
       json: ${{ steps.matrix-output.outputs.json }}
     steps:
