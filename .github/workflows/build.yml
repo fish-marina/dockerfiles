@@ -130,7 +130,8 @@ jobs:
 
       - name: Push multi-arch image
         run: |
+          tag=${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }}
           docker buildx imagetools create \
-            --tag ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }} \
-            $(echo '${{ needs.build-arm64.outputs.json }}' | jq '.[] | select(.name == "${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}") | .digest_name' -r) \
-            $(echo '${{ needs.build-arm64.outputs.json }}' | jq '.[] | select(.name == "${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}") | .digest_name' -r)
+            --tag $tag \
+            $(echo '${{ needs.build-arm64.outputs.json }}' | jq ".[] | select(.name == \"$tag\") | .digest_name" -r) \
+            $(echo '${{ needs.build-amd64.outputs.json }}' | jq ".[] | select(.name == \"$tag\") | .digest_name" -r)
