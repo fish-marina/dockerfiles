@@ -65,7 +65,6 @@ jobs:
           context: ${{ matrix.name }}/${{ matrix.version }}
           file: ${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           platforms: linux/amd64
-          push: true
           outputs: push-by-digest=true,type=image,push=true
 
       - uses: beacon-biosignals/matrix-output@v1
@@ -96,11 +95,11 @@ jobs:
 
       - name: Build ARM64 image
         uses: docker/build-push-action@v6
+        id: build-push
         with:
           context: ${{ matrix.name }}/${{ matrix.version }}
           file: ${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           platforms: linux/arm64
-          push: true
           outputs: push-by-digest=true,type=image,push=true
 
       - uses: beacon-biosignals/matrix-output@v1
