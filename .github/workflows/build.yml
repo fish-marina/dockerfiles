@@ -65,7 +65,7 @@ jobs:
           context: ${{ matrix.name }}/${{ matrix.version }}
           file: ${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           platforms: linux/amd64
-          outputs: push-by-digest=true,type=image,push=true
+          outputs: push-by-digest=true,type=image
 
       - uses: beacon-biosignals/matrix-output@v1
         id: matrix-output
@@ -100,7 +100,7 @@ jobs:
           context: ${{ matrix.name }}/${{ matrix.version }}
           file: ${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           platforms: linux/arm64
-          outputs: push-by-digest=true,type=image,push=true
+          outputs: push-by-digest=true,type=image
 
       - uses: beacon-biosignals/matrix-output@v1
         id: matrix-output
