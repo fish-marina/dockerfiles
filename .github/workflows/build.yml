@@ -45,6 +45,8 @@ jobs:
     if: ${{ needs.detect-changes.outputs.matrix != '{}' }}
     strategy:
       matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    outputs:
+      json: ${{ steps.matrix-output.outputs.json }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,6 +82,8 @@ jobs:
     if: ${{ needs.detect-changes.outputs.matrix != '{}' }}
     strategy:
       matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    outputs:
+      json: ${{ steps.matrix-output.outputs.json }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
