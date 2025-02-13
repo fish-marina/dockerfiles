@@ -28,9 +28,8 @@ jobs:
           IMAGES=()
           for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
             dir_path=$(dirname "$file")
-            org=$(cut -d'/' -f1 <<< "$dir_path")
-            name=$(cut -d'/' -f2 <<< "$dir_path")
-            version=$(cut -d'/' -f3 <<< "$dir_path")
+            name=$(cut -d'/' -f1 <<< "$dir_path")
+            version=$(cut -d'/' -f2 <<< "$dir_path")
 
             image_json=$(printf '{"org": "%s", "name": "%s", "version": "%s"}' "$org" "$name" "$version")
             IMAGES+=("$image_json")
@@ -69,4 +68,4 @@ jobs:
           file: ${{ matrix.org }}/${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ matrix.org }}/${{ matrix.name }}:${{ matrix.version }}
+          tags: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }}
