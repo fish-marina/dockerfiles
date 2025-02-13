@@ -83,8 +83,8 @@ jobs:
         id: matrix-output
         with:
           yaml: |
-            name: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }}
-            digest_name: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}@${{ steps.build-push.outputs.digest }}
+            tag: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }}
+            digest: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}@${{ steps.build-push.outputs.digest }}
 
   stitch-multiarch:
     needs: [detect-changes, build]
@@ -106,4 +106,4 @@ jobs:
           tag=${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }}
           docker buildx imagetools create \
             --tag $tag \
-            $(echo '${{ needs.build.outputs.json }}' | jq ".[] | select(.name == \"$tag\") | .digest_name" -r) \
+            $(echo '${{ needs.build.outputs.json }}' | jq ".[] | select(.tag == \"$tag\") | .digest" -r) \
