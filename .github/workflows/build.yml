@@ -33,7 +33,7 @@ jobs:
             name=$(cut -d'/' -f1 <<< "$dir_path")
             version=$(cut -d'/' -f2 <<< "$dir_path")
 
-            # once with os and once without os
+            # once with os (per architecture) and once without os
             image_json_amd64=$(printf '{"name": "%s", "version": "%s", "os": "%s"}' "$name" "$version" ubuntu-24.04)
             image_json_arm64=$(printf '{"name": "%s", "version": "%s", "os": "%s"}' "$name" "$version" ubuntu-24.04-arm)
             image_json_no_os=$(printf '{"name": "%s", "version": "%s"}' "$name" "$version")
