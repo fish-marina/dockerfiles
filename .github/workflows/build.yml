@@ -58,14 +58,9 @@ jobs:
           context: ${{ matrix.name }}/${{ matrix.version }}
           file: ${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           platforms: linux/amd64
-          push: false
-          outputs: type=oci,dest=amd64.tar
-
-      - name: Upload AMD64 image artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: amd64-image-${{ matrix.name }}-${{ matrix.version }}
-          path: amd64.tar
+          push: true
+          tags: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }}-amd64
+          output: push-by-digest=true,type=image,push=true
 
   build-arm64:
     needs: detect-changes
@@ -86,16 +81,11 @@ jobs:
           context: ${{ matrix.name }}/${{ matrix.version }}
           file: ${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           platforms: linux/arm64
-          push: false
-          outputs: type=oci,dest=arm64.tar
+          push: true
+          tags: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }}-arm64
+          output: push-by-digest=true,type=image,push=true
 
-      - name: Upload ARM64 image artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: arm64-image-${{ matrix.name }}-${{ matrix.version }}
-          path: arm64.tar
-
-  push-multiarch:
+  stitch-multiarch:
     needs: [detect-changes, build-amd64, build-arm64]
     runs-on: ubuntu-24.04
     strategy:
@@ -107,26 +97,12 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Download AMD64 image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: amd64-image-${{ matrix.name }}-${{ matrix.version }}
-
-      - name: Download ARM64 image artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: arm64-image-${{ matrix.name }}-${{ matrix.version }}
-
-      - name: Load images into Docker
-        run: |
-          docker load --input amd64.tar
-          docker load --input arm64.tar
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Push multi-arch image
         run: |
-          docker buildx create --use
           docker buildx imagetools create \
             --tag ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }} \
-            $(docker images --format "{{.Repository}}:{{.Tag}}" | grep ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }} | awk '{print "--amend "$1}')
-
-          docker buildx imagetools inspect ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }}
+            ${{ needs.build-amd64.outputs.digest }} \
+            ${{ needs.build-arm64.outputs.digest }}
