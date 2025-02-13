@@ -56,7 +56,7 @@ jobs:
           file: ${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           platforms: linux/amd64
           push: false
-          outputs: type=docker,dest=amd64.tar
+          outputs: type=oci,dest=amd64.tar
 
       - name: Upload AMD64 image artifact
         uses: actions/upload-artifact@v4
@@ -81,7 +81,7 @@ jobs:
           file: ${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           platforms: linux/arm64
           push: false
-          outputs: type=docker,dest=arm64.tar
+          outputs: type=oci,dest=arm64.tar
 
       - name: Upload ARM64 image artifact
         uses: actions/upload-artifact@v4
