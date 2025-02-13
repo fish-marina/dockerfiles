@@ -33,7 +33,9 @@ jobs:
 
             image_json_amd64=$(printf '{"name": "%s", "version": "%s", "os": "%s"}' "$name" "$version" ubuntu-24.04)
             image_json_arm64=$(printf '{"name": "%s", "version": "%s", "os": "%s"}' "$name" "$version" ubuntu-24.04-arm)
-            IMAGES+=("$image_json_amd64", "$image_json_arm64")
+
+            IMAGES+=("$image_json_amd64")
+            IMAGES+=("$image_json_arm64")
           done
 
           IMAGE_LIST=$(IFS=,; echo "${IMAGES[*]}")
