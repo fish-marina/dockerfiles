@@ -59,14 +59,21 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build AMD64 image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
+        id: build-push
         with:
           context: ${{ matrix.name }}/${{ matrix.version }}
           file: ${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           platforms: linux/amd64
           push: true
-          tags: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }}-amd64
-          output: push-by-digest=true,type=image,push=true
+          outputs: push-by-digest=true,type=image,push=true
+
+      - uses: beacon-biosignals/matrix-output@v1
+        id: matrix-output
+        with:
+          yaml: |
+            name: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }}
+            digest_name: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}@${{ steps.build-push.outputs.digest }}
 
   build-arm64:
     needs: detect-changes
@@ -88,14 +95,20 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build ARM64 image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.name }}/${{ matrix.version }}
           file: ${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           platforms: linux/arm64
           push: true
-          tags: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }}-arm64
-          output: push-by-digest=true,type=image,push=true
+          outputs: push-by-digest=true,type=image,push=true
+
+      - uses: beacon-biosignals/matrix-output@v1
+        id: matrix-output
+        with:
+          yaml: |
+            name: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }}
+            digest_name: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}@${{ steps.build-push.outputs.digest }}
 
   stitch-multiarch:
     needs: [detect-changes, build-amd64, build-arm64]
@@ -116,5 +129,5 @@ jobs:
         run: |
           docker buildx imagetools create \
             --tag ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}:${{ matrix.version }} \
-            ${{ needs.build-amd64.outputs.digest }} \
-            ${{ needs.build-arm64.outputs.digest }}
+            $(echo '${{ needs.build-arm64.outputs.json }}' | jq '.[] | select(.name == "${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}") | .digest_name' -r) \
+            $(echo '${{ needs.build-arm64.outputs.json }}' | jq '.[] | select(.name == "${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}") | .digest_name' -r)
