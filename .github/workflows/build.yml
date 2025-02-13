@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  pull_request:
 
 jobs:
   detect-changes:
@@ -55,6 +56,7 @@ jobs:
     if: ${{ needs.detect-changes.outputs.matrix != '[]' }}
     strategy:
       matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+      fail-fast: false
     outputs:
       json: ${{ steps.matrix-output.outputs.json }}
     steps:
@@ -77,7 +79,7 @@ jobs:
           context: ${{ matrix.name }}/${{ matrix.version }}
           file: ${{ matrix.name }}/${{ matrix.version }}/Dockerfile
           tags: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}
-          outputs: push-by-digest=true,type=image,push=true
+          outputs: "${{ github.event_name == 'push' && 'push-by-digest=true,type=image,push=true' || 'type=image,push=false' }}"
 
       - uses: beacon-biosignals/matrix-output@v1
         id: matrix-output
@@ -87,6 +89,7 @@ jobs:
             digest: ${{ vars.DOCKERHUB_ORG }}/${{ matrix.name }}@${{ steps.build-push.outputs.digest }}
 
   stitch-multiarch:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: [detect-changes, build]
     runs-on: ubuntu-24.04
     strategy:
