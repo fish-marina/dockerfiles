@@ -2,6 +2,7 @@ FROM alpine:3.21
 
 ARG  FISH_VERSION=3.4.0
 
+
 RUN echo "Building Fish-${FISH_VERSION}"; \
     apk update \
     && apk add curl \
