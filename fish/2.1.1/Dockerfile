@@ -1,4 +1,4 @@
-FROM alpine:3.21.2
+FROM alpine:3.10
 
 RUN mkdir /fish-2.1.1
 COPY *.patch /fish-2.1.1/
