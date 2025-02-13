@@ -53,7 +53,7 @@ jobs:
   build:
     needs: detect-changes
     runs-on: ${{ matrix.os }}
-    if: ${{ needs.detect-changes.outputs.matrix != '[]' }}
+    if: ${{ needs.detect-changes.outputs.matrix != '{"include":[]}' }}
     strategy:
       matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
       fail-fast: false
